@@ -1,3 +1,6 @@
+ROS A* planner. Modified version of: https://github.com/zang09/AStar-ROS
+Adapted to our use case.
+
 # A* Path Planner
 
 ### Astar demo in ROS Rviz
