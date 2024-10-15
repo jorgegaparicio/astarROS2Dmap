@@ -27,6 +27,6 @@ $ source ~/catkin_ws/devel/setup.bash
 ```
 3. Launch packages 
 ```
-$ roslaunch path_generator run.launch
+$ roslaunch path_generator run2.launch
 ```
 4. Send goal pose by rviz tool `2D Nav Goal`
