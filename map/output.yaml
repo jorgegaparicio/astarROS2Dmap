@@ -1,6 +1,6 @@
 image: output.pgm
-resolution: 1.00000
-origin: [-50.000000, -50.000000, 0.0]
+resolution: 0.2500
+origin: [-19.000000, -16.5000000, 0.0]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.196
