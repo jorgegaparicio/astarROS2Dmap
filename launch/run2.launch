@@ -9,6 +9,10 @@
    
   <node pkg="$(arg project)" type="$(arg project)" name="$(arg project)" output="screen" respawn="true" />
   
+  <node pkg="global_pose_to_flat_map" type="global_pose_to_flat_map" name="global_pose_to_flat_map"/>
+  
+  <node pkg="pcd_map_viewer" type="pcd_map_viewer" name="pcd_map_viewer" output="screen"/>
+  
   <node pkg="rviz" type="rviz" name="rviz_$(arg project)" args="-d $(find path_generator)/launch/Map.rviz" />
   
 </launch>
