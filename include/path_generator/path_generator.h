@@ -19,12 +19,14 @@ private:
     void subscribeAndPublish();
     void gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_msg);
     void navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &goal_msg);
+    void updatePosition(const geometry_msgs::PoseStamped::ConstPtr &current_pose_msg);
 
 private:
     // ROS
     ros::NodeHandle nh_;
     ros::Subscriber sub_grid_map_;
     ros::Subscriber sub_nav_goal_;
+    ros::Subscriber sub_current_pose_;
     ros::Publisher  pub_robot_path_;
 
     AStar::Generator map_generator_;
