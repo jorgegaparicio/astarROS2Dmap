@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+float current_x;
+float current_y;
+
 PathGenerator::PathGenerator()
 {
     subscribeAndPublish();
@@ -12,10 +15,10 @@ PathGenerator::~PathGenerator()
 
 }
 
-void PathGenerator::subscribeAndPublish()
-{
+void PathGenerator::subscribeAndPublish(){
     sub_grid_map_ = nh_.subscribe<nav_msgs::OccupancyGrid>("map", 1, &PathGenerator::gridMapHandler, this);
     sub_nav_goal_ = nh_.subscribe<geometry_msgs::PoseStamped>("move_base_simple/goal", 1, &PathGenerator::navGoalHandler, this);
+    sub_current_pose_ = nh_.subscribe<geometry_msgs::PoseStamped>("flat_map_pose", 1, &PathGenerator::updatePosition, this);
     pub_robot_path_ = nh_.advertise<nav_msgs::Path>("robot_path", 1, true);
 }
 
@@ -48,6 +51,13 @@ void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_
     map_exsit_ = true;
 }
 
+void PathGenerator::updatePosition(const geometry_msgs::PoseStamped::ConstPtr &current_pose_msg){
+    // Round current coordinate
+    current_x = round(current_pose_msg->current_pose_msg.pose.position.x*10)/10;
+    current_y = round(current_pose_msg->current_pose_msg.pose.position.y*10)/10;
+
+}
+
 void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &goal_msg)
 {
     if(!map_exsit_) return;
@@ -64,8 +74,8 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     target.y = (goal_y - map_info_.origin.position.y) / map_info_.resolution;
 
     AStar::Vec2i source;
-    source.x = (0 - map_info_.origin.position.x) / map_info_.resolution;
-    source.y = (0 - map_info_.origin.position.y) / map_info_.resolution;
+    source.x = (current_x - map_info_.origin.position.x) / map_info_.resolution;
+    source.y = (current_y - map_info_.origin.position.y) / map_info_.resolution;
 
     // Find Path
     auto path = map_generator_.findPath(source, target);
