@@ -53,8 +53,8 @@ void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_
 
 void PathGenerator::updatePosition(const geometry_msgs::PoseStamped::ConstPtr &current_pose_msg){
     // Round current coordinate
-    current_x = round(current_pose_msg->current_pose_msg.pose.position.x*10)/10;
-    current_y = round(current_pose_msg->current_pose_msg.pose.position.y*10)/10;
+    current_x = round(current_pose_msg->pose.position.x*10)/10;
+    current_y = round(current_pose_msg->pose.position.y*10)/10;
 
 }
 
@@ -91,9 +91,10 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     {
         geometry_msgs::PoseStamped point_pose;
 
-        // Remmaping coordinate
+        // Remapping coordinate
         point_pose.pose.position.x = (coordinate->x + map_info_.origin.position.x / map_info_.resolution) * map_info_.resolution;
         point_pose.pose.position.y = (coordinate->y + map_info_.origin.position.y / map_info_.resolution) * map_info_.resolution;
+        point_pose.pose.orientation = goal_msg->pose.orientation;
         path_msg.poses.push_back(point_pose);
     }
 
