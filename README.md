@@ -10,23 +10,23 @@ Adapted to our use case.
 ### Prerequisition
 Install package
 ```
-$ sudo apt install ros-${ROS_DISTRO}-map-server
+sudo apt install ros-${ROS_DISTRO}-map-server
 ```
 ### How to use
 1. Clone Package
 ```
-$ mkdir -p ~/catkin_ws/src
-$ cd ~/catkin_ws/src
-$ git clone https://github.com/jorgegaparicio/astarROS2Dmap.git
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone https://github.com/jorgegaparicio/astarROS2Dmap.git
 ```
 2. Build Package
 ```
-$ cd ..
-$ catkin_make
-$ source ~/catkin_ws/devel/setup.bash
+cd ..
+catkin_make
+source ~/catkin_ws/devel/setup.bash
 ```
 3. Launch packages 
 ```
-$ roslaunch path_generator run2.launch
+roslaunch path_generator run2.launch
 ```
 4. Send goal pose by rviz tool `2D Nav Goal`
