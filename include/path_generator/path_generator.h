@@ -20,6 +20,7 @@ private:
     void gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_msg);
     void navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &goal_msg);
     void updatePosition(const geometry_msgs::PoseStamped::ConstPtr &current_pose_msg);
+    void updateHeight(const geometry_msgs::PoseStamped::ConstPtr &current_height_msg);
 
 private:
     // ROS
@@ -27,6 +28,8 @@ private:
     ros::Subscriber sub_grid_map_;
     ros::Subscriber sub_nav_goal_;
     ros::Subscriber sub_current_pose_;
+    ros::Subscriber sub_current_pose_height_;
+    ros::Publisher  pub_robot_waypoint_;
     ros::Publisher  pub_robot_path_;
 
     AStar::Generator map_generator_;
