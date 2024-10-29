@@ -1,5 +1,6 @@
 #include "../include/path_generator/a_star.hpp"
-
+#include <time.h>
+#include <cstdio>
 #include <algorithm>
 
 using namespace std::placeholders;
