@@ -21,7 +21,7 @@ void PathGenerator::subscribeAndPublish(){
     sub_nav_goal_ = nh_.subscribe<geometry_msgs::PoseStamped>("move_base_simple/goal", 1, &PathGenerator::navGoalHandler, this); //RVIZ publica en este topico al hacer clic en 2d nav goal
     sub_current_pose_ = nh_.subscribe<geometry_msgs::PoseStamped>("flat_map_pose", 1, &PathGenerator::updatePosition, this); //recibe posicion traducida a mapa 2d
     sub_current_pose_height_ = nh_.subscribe<geometry_msgs::PoseStamped>("global_pose", 1, &PathGenerator::updateHeight, this); //recibe altura
-    pub_robot_waypoint_ = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 100);
+    pub_robot_waypoint_ = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 1000);
     pub_robot_path_ = nh_.advertise<nav_msgs::Path>("robot_path", 10);
 }
 
