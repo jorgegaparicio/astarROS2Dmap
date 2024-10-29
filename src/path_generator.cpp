@@ -4,6 +4,7 @@
 
 float current_x;
 float current_y;
+float current_h;
 
 PathGenerator::PathGenerator()
 {
@@ -17,9 +18,11 @@ PathGenerator::~PathGenerator()
 
 void PathGenerator::subscribeAndPublish(){
     sub_grid_map_ = nh_.subscribe<nav_msgs::OccupancyGrid>("map", 1, &PathGenerator::gridMapHandler, this);
-    sub_nav_goal_ = nh_.subscribe<geometry_msgs::PoseStamped>("move_base_simple/goal", 1, &PathGenerator::navGoalHandler, this);
-    sub_current_pose_ = nh_.subscribe<geometry_msgs::PoseStamped>("flat_map_pose", 1, &PathGenerator::updatePosition, this);
-    pub_robot_path_ = nh_.advertise<nav_msgs::Path>("robot_path", 1, true);
+    sub_nav_goal_ = nh_.subscribe<geometry_msgs::PoseStamped>("move_base_simple/goal", 1, &PathGenerator::navGoalHandler, this); //RVIZ publica en este topico al hacer clic en 2d nav goal
+    sub_current_pose_ = nh_.subscribe<geometry_msgs::PoseStamped>("flat_map_pose", 1, &PathGenerator::updatePosition, this); //recibe posicion traducida a mapa 2d
+    sub_current_pose_height_ = nh_.subscribe<geometry_msgs::PoseStamped>("global_pose", 1, &PathGenerator::updateHeight, this); //recibe altura
+    pub_robot_waypoint_ = nh_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 100);
+    pub_robot_path_ = nh_.advertise<nav_msgs::Path>("robot_path", 10);
 }
 
 void PathGenerator::gridMapHandler(const nav_msgs::OccupancyGrid::ConstPtr &map_msg)
@@ -57,6 +60,11 @@ void PathGenerator::updatePosition(const geometry_msgs::PoseStamped::ConstPtr &c
     current_y = round(current_pose_msg->pose.position.y*10)/10;
 
 }
+void PathGenerator::updateHeight(const geometry_msgs::PoseStamped::ConstPtr &current_height_msg){
+    // Round current coordinate
+    current_h = current_height_msg->pose.position.z;
+    
+}
 
 void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &goal_msg)
 {
@@ -80,7 +88,9 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
     // Find Path
     auto path = map_generator_.findPath(source, target);
 
-    nav_msgs::Path path_msg;
+    geometry_msgs::PoseStamped path_msg;
+    nav_msgs::Path path_rviz;
+
     if(path.empty())
     {
         ROS_INFO("\033[1;31mFail generate path!\033[0m");
@@ -95,13 +105,28 @@ void PathGenerator::navGoalHandler(const geometry_msgs::PoseStamped::ConstPtr &g
         point_pose.pose.position.x = (coordinate->x + map_info_.origin.position.x / map_info_.resolution) * map_info_.resolution;
         point_pose.pose.position.y = (coordinate->y + map_info_.origin.position.y / map_info_.resolution) * map_info_.resolution;
         point_pose.pose.orientation = goal_msg->pose.orientation;
-        path_msg.poses.push_back(point_pose);
+        path_rviz.poses.push_back(point_pose);
+        }
+        path_rviz.header.frame_id = "map";
+        pub_robot_path_.publish(path_rviz);
+        ROS_INFO("\033[1;36mSuccess generating path!\033[0m");
+
+
+    for(auto coordinate=path.end()-1; coordinate>=path.begin(); --coordinate)
+    {
+        geometry_msgs::PoseStamped point_pose;
+        // Remapping coordinate
+        point_pose.pose.position.x = (coordinate->x + map_info_.origin.position.x / map_info_.resolution) * map_info_.resolution;
+        point_pose.pose.position.y = (coordinate->y + map_info_.origin.position.y / map_info_.resolution) * map_info_.resolution;
+        point_pose.pose.position.z = current_h;
+        point_pose.pose.orientation = goal_msg->pose.orientation;
+        path_msg.pose = point_pose.pose;
+        path_msg.header.frame_id = "map";
+        pub_robot_waypoint_.publish(path_msg);
+        ros::Duration(1.0).sleep();
     }
 
-    path_msg.header.frame_id = "map";
-    pub_robot_path_.publish(path_msg);
-
-    ROS_INFO("\033[1;36mSuccess generate path!\033[0m");
+    ROS_INFO("\033[1;34mSuccess following path!\033[0m");
 }
 
 int main(int argc, char **argv)
